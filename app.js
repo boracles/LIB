@@ -45,7 +45,9 @@ window.addEventListener("resize", () => {
 
 resizeCanvas();
 
+// --------------------
 // 그리기 로직
+// --------------------
 function startDrawing(x, y) {
   drawing = true;
   lastX = x;
@@ -156,26 +158,39 @@ saveClearBtn.addEventListener("click", () => {
   clearCanvas(true);
 });
 
-// 🌟 관리자 모드일 때만 캡처 리스트 표시
+// --------------------
+// 관리자 모드: 캡처 리스트
+// --------------------
 if (window.isAdmin && capturesContainer) {
-  capturesRef.on("child_added", (snap) => {
-    const data = snap.val();
-    if (!data) return;
+  // createdAt 기준 오름차순으로 전체 가져오기
+  capturesRef.orderByChild("createdAt").on("value", (snap) => {
+    capturesContainer.innerHTML = "";
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "capture-item";
+    const items = [];
+    snap.forEach((child) => {
+      const data = child.val();
+      if (!data) return;
+      items.push(data);
+    });
 
-    const img = document.createElement("img");
-    img.src = data.image;
+    // 최신 것이 위로 오도록 createdAt 내림차순 정렬
+    items.sort((a, b) => b.createdAt - a.createdAt);
 
-    const meta = document.createElement("div");
-    meta.className = "capture-meta";
-    meta.textContent = new Date(data.createdAt).toLocaleString();
+    items.forEach((data) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "capture-item";
 
-    wrapper.appendChild(img);
-    wrapper.appendChild(meta);
+      const img = document.createElement("img");
+      img.src = data.image;
 
-    // 최근 것이 위로
-    capturesContainer.prepend(wrapper);
+      const meta = document.createElement("div");
+      meta.className = "capture-meta";
+      meta.textContent = new Date(data.createdAt).toLocaleString();
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(meta);
+
+      capturesContainer.appendChild(wrapper);
+    });
   });
 }
