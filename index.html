@@ -18,15 +18,7 @@
         background: #000;
       }
 
-      header {
-        padding: 8px 12px;
-        font-size: 14px;
-        background: #0b1120;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+      /* 헤더 아예 제거했음 */
 
       #canvas-container {
         flex: 1;
@@ -110,11 +102,6 @@
     </style>
   </head>
   <body>
-    <header>
-      <div>실시간 사인 공유</div>
-      <div style="font-size: 12px; opacity: 0.8"></div>
-    </header>
-
     <div id="canvas-container">
       <canvas id="board"></canvas>
       <!-- 동그라미 버튼 (저장+지우기) -->
@@ -124,7 +111,7 @@
       ></button>
     </div>
 
-    <!-- 저장된 사인 목록 -->
+    <!-- 저장된 사인 목록 (PC에서 확인) -->
     <div id="captures"></div>
 
     <!-- Firebase CDN (compat 버전 사용) -->

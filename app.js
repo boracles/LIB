@@ -46,11 +46,10 @@ window.addEventListener("resize", () => {
 resizeCanvas();
 
 // --------------------
-// pointer 기반 그리기 (마우스 + 터치 + 펜 통합)
+// pointer 기반 그리기 (마우스 + 터치 + 펜)
 // --------------------
 canvas.addEventListener("pointerdown", (e) => {
-  // 버튼 누른 것 막기
-  if (e.button !== undefined && e.button !== 0) return;
+  if (e.button !== undefined && e.button !== 0) return; // 왼쪽 버튼만
 
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -63,6 +62,7 @@ canvas.addEventListener("pointerdown", (e) => {
 
 canvas.addEventListener("pointermove", (e) => {
   if (!drawing) return;
+
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
@@ -153,7 +153,7 @@ if (capturesContainer) {
     wrapper.appendChild(img);
     wrapper.appendChild(meta);
 
-    // 최신 것을 위에
+    // 최신 것을 위로
     capturesContainer.prepend(wrapper);
   });
 }
