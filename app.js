@@ -158,11 +158,8 @@ saveClearBtn.addEventListener("click", () => {
   clearCanvas(true);
 });
 
-// --------------------
-// 관리자 모드: 캡처 리스트
-// --------------------
-if (window.isAdmin && capturesContainer) {
-  // createdAt 기준 오름차순으로 전체 가져오기
+// 🌟 캡처 리스트: 항상 그리기 (PC에서는 보이고, 모바일은 CSS로 숨김)
+if (capturesContainer) {
   capturesRef.orderByChild("createdAt").on("value", (snap) => {
     capturesContainer.innerHTML = "";
 
@@ -173,7 +170,7 @@ if (window.isAdmin && capturesContainer) {
       items.push(data);
     });
 
-    // 최신 것이 위로 오도록 createdAt 내림차순 정렬
+    // 최신 것이 위로
     items.sort((a, b) => b.createdAt - a.createdAt);
 
     items.forEach((data) => {
@@ -189,7 +186,6 @@ if (window.isAdmin && capturesContainer) {
 
       wrapper.appendChild(img);
       wrapper.appendChild(meta);
-
       capturesContainer.appendChild(wrapper);
     });
   });

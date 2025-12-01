@@ -77,18 +77,14 @@
         margin-top: 22px;
       }
 
-      /* 관리자 모드에서만 보이는 캡처 리스트 */
+      /* 캡처 리스트: 기본은 보이게, 작은 화면에서는 숨김 */
       #captures {
-        display: none; /* 기본은 안 보임 */
         max-height: 220px;
         overflow-y: auto;
         padding: 8px 12px;
         background: #f9fafb;
         border-top: 1px solid #e5e7eb;
         font-size: 12px;
-      }
-      body.admin-mode #captures {
-        display: block; /* ?admin=true 일 때만 보이게 */
       }
 
       .capture-item {
@@ -109,6 +105,13 @@
       .capture-meta {
         color: #4b5563;
       }
+
+      /* 아이패드/폰 같은 좁은 화면에서는 리스트 안 보이게 */
+      @media (max-width: 768px) {
+        #captures {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -126,7 +129,7 @@
       ></button>
     </div>
 
-    <!-- 관리자 모드에서만 보이는 캡처 목록 -->
+    <!-- PC에서 항상 보이는 캡처 목록 (모바일/아이패드에서는 자동 숨김) -->
     <div id="captures"></div>
 
     <!-- Firebase CDN (compat 버전 사용) -->
@@ -148,13 +151,6 @@
 
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.database();
-
-      // URL 파라미터로 admin 모드 감지 (?admin=true)
-      const params = new URLSearchParams(window.location.search);
-      window.isAdmin = params.get("admin") === "true";
-      if (window.isAdmin) {
-        document.body.classList.add("admin-mode");
-      }
     </script>
 
     <!-- 내 앱 로직 -->
