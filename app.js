@@ -1,10 +1,11 @@
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const saveClearBtn = document.getElementById("save-clear-btn");
+const capturesContainer = document.getElementById("captures");
 
 // Firebase Realtime Database 참조
-const roomRef = window.db.ref("rooms/default"); // 실시간 선 공유용
-const capturesRef = window.db.ref("captures"); // 캡처 기록용
+const roomRef = window.db.ref("rooms/default");
+const capturesRef = window.db.ref("captures");
 
 let drawing = false;
 let lastX = 0;
@@ -80,7 +81,7 @@ function stopDrawing() {
   drawing = false;
 }
 
-// 마우스 이벤트 (PC에서도 그냥 그릴 수 있게)
+// 마우스 이벤트
 canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();
   startDrawing(e.clientX - rect.left, e.clientY - rect.top);
@@ -124,7 +125,7 @@ canvas.addEventListener("touchcancel", stopDrawing);
 roomRef.child("strokes").on("child_added", (snap) => {
   const data = snap.val();
   if (!data) return;
-  if (data.by === clientId) return; // 내가 그린 건 무시
+  if (data.by === clientId) return;
 
   const w = canvas.width;
   const h = canvas.height;
@@ -144,6 +145,10 @@ roomRef.child("clear").on("value", (snap) => {
 
 // 🌟 저장하고 지우기: 캔버스를 PNG로 저장 + 전체 지우기
 saveClearBtn.addEventListener("click", () => {
+  // 살짝 반짝 효과
+  saveClearBtn.classList.add("clicked");
+  setTimeout(() => saveClearBtn.classList.remove("clicked"), 150);
+
   const dataUrl = canvas.toDataURL("image/png");
 
   capturesRef.push({
@@ -154,3 +159,27 @@ saveClearBtn.addEventListener("click", () => {
 
   clearCanvas(true);
 });
+
+// 🌟 관리자 모드일 때만 캡처 리스트 표시
+if (window.isAdmin && capturesContainer) {
+  capturesRef.on("child_added", (snap) => {
+    const data = snap.val();
+    if (!data) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "capture-item";
+
+    const img = document.createElement("img");
+    img.src = data.image;
+
+    const meta = document.createElement("div");
+    meta.className = "capture-meta";
+    meta.textContent = new Date(data.createdAt).toLocaleString();
+
+    wrapper.appendChild(img);
+    wrapper.appendChild(meta);
+
+    // 최근 것이 위에 오도록
+    capturesContainer.prepend(wrapper);
+  });
+}
