@@ -1,10 +1,10 @@
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
-const canDrawCheckbox = document.getElementById("can-draw");
-const clearBtn = document.getElementById("clear-btn");
+const saveClearBtn = document.getElementById("save-clear-btn");
 
 // Firebase Realtime Database 참조
-const roomRef = window.db.ref("rooms/default"); // 방 하나만 사용
+const roomRef = window.db.ref("rooms/default"); // 실시간 선 공유용
+const capturesRef = window.db.ref("captures"); // 캡처 기록용
 
 let drawing = false;
 let lastX = 0;
@@ -26,7 +26,7 @@ function clearLocalCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// 전체 지우기
+// 전체 지우기 (다른 기기도 함께)
 function clearCanvas(emit = true) {
   clearLocalCanvas();
   if (emit) {
@@ -36,8 +36,6 @@ function clearCanvas(emit = true) {
     });
   }
 }
-
-clearBtn.addEventListener("click", () => clearCanvas(true));
 
 window.addEventListener("resize", () => {
   clearLocalCanvas();
@@ -82,15 +80,13 @@ function stopDrawing() {
   drawing = false;
 }
 
-// 마우스 이벤트
+// 마우스 이벤트 (PC에서도 그냥 그릴 수 있게)
 canvas.addEventListener("mousedown", (e) => {
-  if (!canDrawCheckbox.checked) return;
   const rect = canvas.getBoundingClientRect();
   startDrawing(e.clientX - rect.left, e.clientY - rect.top);
 });
 
 canvas.addEventListener("mousemove", (e) => {
-  if (!canDrawCheckbox.checked) return;
   const rect = canvas.getBoundingClientRect();
   drawLine(e.clientX - rect.left, e.clientY - rect.top, true);
 });
@@ -102,7 +98,6 @@ canvas.addEventListener("mouseleave", stopDrawing);
 canvas.addEventListener(
   "touchstart",
   (e) => {
-    if (!canDrawCheckbox.checked) return;
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const t = e.touches[0];
@@ -114,7 +109,6 @@ canvas.addEventListener(
 canvas.addEventListener(
   "touchmove",
   (e) => {
-    if (!canDrawCheckbox.checked) return;
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const t = e.touches[0];
@@ -146,4 +140,17 @@ roomRef.child("clear").on("value", (snap) => {
   if (!data) return;
   if (data.by === clientId) return;
   clearLocalCanvas();
+});
+
+// 🌟 저장하고 지우기: 캔버스를 PNG로 저장 + 전체 지우기
+saveClearBtn.addEventListener("click", () => {
+  const dataUrl = canvas.toDataURL("image/png");
+
+  capturesRef.push({
+    by: clientId,
+    createdAt: Date.now(),
+    image: dataUrl,
+  });
+
+  clearCanvas(true);
 });
