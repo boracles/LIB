@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>실시간 사인 공유</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #f3f4f6;
+      }
+      header {
+        padding: 8px 12px;
+        font-size: 14px;
+        background: #111827;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #toolbar {
+        padding: 8px 12px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: #e5e7eb;
+        font-size: 13px;
+      }
+      button {
+        border-radius: 999px;
+        border: none;
+        padding: 6px 12px;
+        cursor: pointer;
+        background: white;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        font-size: 13px;
+      }
+      #canvas-container {
+        flex: 1;
+        position: relative;
+      }
+      canvas {
+        background: white;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.15);
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none; /* 아이패드에서 스크롤 대신 그리기 */
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>실시간 사인 공유</div>
+      <div style="font-size: 12px; opacity: 0.8">
+        아이패드에서 그리면 노트북에서 보이게
+      </div>
+    </header>
+
+    <div id="toolbar">
+      <label>
+        <input type="checkbox" id="can-draw" checked />
+        이 기기에서 그리기 ON
+      </label>
+      <button id="clear-btn">전체 지우기</button>
+    </div>
+
+    <div id="canvas-container">
+      <canvas id="board"></canvas>
+    </div>
+
+    <!-- Firebase CDN (compat 버전 사용) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyB5rQ_1_REGpDN1c26MlqsRKACK_Pee3Z8",
+        authDomain: "realtime-sign.firebaseapp.com",
+        databaseURL:
+          "https://realtime-sign-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "realtime-sign",
+        storageBucket: "realtime-sign.firebasestorage.app",
+        messagingSenderId: "777548695762",
+        appId: "1:777548695762:web:48359121ace386a2bbc50b",
+        measurementId: "G-040GWVFDJB",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      // 전역으로 DB 참조 노출
+      window.db = firebase.database();
+    </script>
+
+    <!-- 내 앱 로직 -->
+    <script src="./app.js"></script>
+  </body>
+</html>
