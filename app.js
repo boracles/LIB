@@ -145,10 +145,6 @@ roomRef.child("clear").on("value", (snap) => {
 
 // 🌟 저장하고 지우기: 캔버스를 PNG로 저장 + 전체 지우기
 saveClearBtn.addEventListener("click", () => {
-  // 살짝 반짝 효과
-  saveClearBtn.classList.add("clicked");
-  setTimeout(() => saveClearBtn.classList.remove("clicked"), 150);
-
   const dataUrl = canvas.toDataURL("image/png");
 
   capturesRef.push({
@@ -179,7 +175,7 @@ if (window.isAdmin && capturesContainer) {
     wrapper.appendChild(img);
     wrapper.appendChild(meta);
 
-    // 최근 것이 위에 오도록
+    // 최근 것이 위로
     capturesContainer.prepend(wrapper);
   });
 }
