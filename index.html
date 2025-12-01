@@ -91,7 +91,10 @@
       .capture-meta {
         color: #4b5563;
       }
-
+      /* ✅ 아이패드에서는 오른쪽 리스트 숨기기 */
+      body.is-ipad #captures {
+        display: none;
+      }
       /* 오른쪽 위 동그란 버튼 (저장+지우기) */
       #save-clear-btn {
         position: absolute;
@@ -159,6 +162,18 @@
 
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.database();
+    </script>
+
+    <script>
+      // 아이패드 감지
+      const ua = navigator.userAgent || "";
+      const isIpad =
+        ua.includes("iPad") ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+      if (isIpad) {
+        document.body.classList.add("is-ipad");
+      }
     </script>
 
     <!-- 내 앱 로직 -->
