@@ -46,82 +46,58 @@ window.addEventListener("resize", () => {
 resizeCanvas();
 
 // --------------------
-// 그리기 로직
+// pointer 기반 그리기 (마우스 + 터치 + 펜 통합)
 // --------------------
-function startDrawing(x, y) {
+canvas.addEventListener("pointerdown", (e) => {
+  // 버튼 누른 것 막기
+  if (e.button !== undefined && e.button !== 0) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
   drawing = true;
   lastX = x;
   lastY = y;
-}
+  canvas.setPointerCapture(e.pointerId);
+});
 
-function drawLine(x, y, emit = true) {
+canvas.addEventListener("pointermove", (e) => {
   if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
   ctx.beginPath();
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(x, y);
   ctx.stroke();
 
-  if (emit) {
-    const w = canvas.width;
-    const h = canvas.height;
-    roomRef.child("strokes").push({
-      by: clientId,
-      x0: lastX / w,
-      y0: lastY / h,
-      x1: x / w,
-      y1: y / h,
-      t: Date.now(),
-    });
-  }
+  const w = canvas.width;
+  const h = canvas.height;
+  roomRef.child("strokes").push({
+    by: clientId,
+    x0: lastX / w,
+    y0: lastY / h,
+    x1: x / w,
+    y1: y / h,
+    t: Date.now(),
+  });
 
   lastX = x;
   lastY = y;
-}
+});
 
-function stopDrawing() {
+function endPointer(e) {
+  if (!drawing) return;
   drawing = false;
+  try {
+    canvas.releasePointerCapture(e.pointerId);
+  } catch (_) {}
 }
 
-// 마우스 이벤트
-canvas.addEventListener("mousedown", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  startDrawing(e.clientX - rect.left, e.clientY - rect.top);
-});
-
-canvas.addEventListener("mousemove", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  drawLine(e.clientX - rect.left, e.clientY - rect.top, true);
-});
-
-canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseleave", stopDrawing);
-
-// 터치 이벤트 (아이패드)
-canvas.addEventListener(
-  "touchstart",
-  (e) => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const t = e.touches[0];
-    startDrawing(t.clientX - rect.left, t.clientY - rect.top);
-  },
-  { passive: false }
-);
-
-canvas.addEventListener(
-  "touchmove",
-  (e) => {
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const t = e.touches[0];
-    drawLine(t.clientX - rect.left, t.clientY - rect.top, true);
-  },
-  { passive: false }
-);
-
-canvas.addEventListener("touchend", stopDrawing);
-canvas.addEventListener("touchcancel", stopDrawing);
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+canvas.addEventListener("pointerleave", endPointer);
 
 // 🔄 다른 기기가 그린 선 받기
 roomRef.child("strokes").on("child_added", (snap) => {
@@ -158,35 +134,26 @@ saveClearBtn.addEventListener("click", () => {
   clearCanvas(true);
 });
 
-// 🌟 캡처 리스트: 항상 그리기 (PC에서는 보이고, 모바일은 CSS로 숨김)
+// 🌟 캡처 리스트: 저장 순서대로, 최신 것이 위로
 if (capturesContainer) {
-  capturesRef.orderByChild("createdAt").on("value", (snap) => {
-    capturesContainer.innerHTML = "";
+  capturesRef.on("child_added", (snap) => {
+    const data = snap.val();
+    if (!data) return;
 
-    const items = [];
-    snap.forEach((child) => {
-      const data = child.val();
-      if (!data) return;
-      items.push(data);
-    });
+    const wrapper = document.createElement("div");
+    wrapper.className = "capture-item";
 
-    // 최신 것이 위로
-    items.sort((a, b) => b.createdAt - a.createdAt);
+    const img = document.createElement("img");
+    img.src = data.image;
 
-    items.forEach((data) => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "capture-item";
+    const meta = document.createElement("div");
+    meta.className = "capture-meta";
+    meta.textContent = new Date(data.createdAt).toLocaleString();
 
-      const img = document.createElement("img");
-      img.src = data.image;
+    wrapper.appendChild(img);
+    wrapper.appendChild(meta);
 
-      const meta = document.createElement("div");
-      meta.className = "capture-meta";
-      meta.textContent = new Date(data.createdAt).toLocaleString();
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(meta);
-      capturesContainer.appendChild(wrapper);
-    });
+    // 최신 것을 위에
+    capturesContainer.prepend(wrapper);
   });
 }
