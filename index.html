@@ -14,10 +14,17 @@
       #layout,
       #canvas-container,
       canvas {
-        -webkit-user-select: none; /* iOS 텍스트 선택 방지 */
-        -webkit-touch-callout: none; /* 길게 누르면 뜨는 메뉴 방지 */
+        -webkit-user-select: none; /* 텍스트/이미지 드래그 선택 방지 */
+        -webkit-touch-callout: none; /* 길게 눌렀을 때 메뉴 방지 */
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* 탭 하이라이트 제거 */
         user-select: none;
       }
+
+      /* 전체 요소에 드래그/선택 더 강하게 막기 (안전빵) */
+      * {
+        -webkit-user-drag: none;
+      }
+
       body {
         margin: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
