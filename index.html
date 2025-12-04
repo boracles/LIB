@@ -8,6 +8,15 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
     <style>
+      html,
+      body,
+      #layout,
+      #canvas-container,
+      canvas {
+        -webkit-user-select: none; /* iOS 텍스트 선택 방지 */
+        -webkit-touch-callout: none; /* 길게 누르면 뜨는 메뉴 방지 */
+        user-select: none;
+      }
       body {
         margin: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",

@@ -49,6 +49,7 @@ resizeCanvas();
 // pointer 기반 그리기 (마우스 + 터치 + 펜)
 // --------------------
 canvas.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
   if (e.button !== undefined && e.button !== 0) return; // 왼쪽 버튼만
 
   const rect = canvas.getBoundingClientRect();
@@ -62,6 +63,7 @@ canvas.addEventListener("pointerdown", (e) => {
 
 canvas.addEventListener("pointermove", (e) => {
   if (!drawing) return;
+  e.preventDefault();
 
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
